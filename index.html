@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Cloud - Sentiment Data Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sentiment-positive {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+        }
+        .sentiment-neutral {
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+        }
+        .sentiment-negative {
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+        }
+        .notes-area {
+            min-height: 300px;
+            resize: none;
+        }
+        .chatbot-container {
+            transition: all 0.3s ease;
+        }
+        .chatbot-minimized {
+            height: 60px;
+            overflow: hidden;
+        }
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+        }
+        .gcp-gradient {
+            background: linear-gradient(135deg, #4285F4 0%, #34A853 50%, #FBBC05 100%);
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="flex items-center">
+                <img src="https://1000logos.net/wp-content/uploads/2020/05/Logo-Google-Cloud.png" alt="Google Cloud Logo" class="h-10 mr-3">
+                <h1 class="text-xl font-bold text-gray-800">Google Cloud Sentiment Data Dashboard</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition">
+                    <i class="fas fa-sync-alt mr-2"></i> Refresh
+                </button>
+                <div class="relative">
+                    <button class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-user text-gray-600"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        <!-- Sentiment Overview Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- Sentiment Indicator -->
+            <div class="lg:col-span-1 bg-white rounded-xl shadow-sm p-6 sentiment-positive">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-white opacity-80">Overall Sentiment</p>
+                        <h2 id="sentiment-value" class="text-3xl font-bold text-white mt-1">Mostly Positive</h2>
+                    </div>
+                    <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                        <i class="fas fa-smile text-white text-3xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-center justify-between text-white text-sm">
+                        <span>Positive</span>
+                        <span>72%</span>
+                    </div>
+                    <div class="w-full bg-white bg-opacity-30 rounded-full h-2 mt-1">
+                        <div class="bg-white h-2 rounded-full" style="width: 72%"></div>
+                    </div>
+                    <div class="flex items-center justify-between text-white text-sm mt-3">
+                        <span>Negative</span>
+                        <span>18%</span>
+                    </div>
+                    <div class="w-full bg-white bg-opacity-30 rounded-full h-2 mt-1">
+                        <div class="bg-white h-2 rounded-full" style="width: 18%"></div>
+                    </div>
+                    <div class="flex items-center justify-between text-white text-sm mt-3">
+                        <span>Neutral</span>
+                        <span>10%</span>
+                    </div>
+                    <div class="w-full bg-white bg-opacity-30 rounded-full h-2 mt-1">
+                        <div class="bg-white h-2 rounded-full" style="width: 10%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Summary Report -->
+            <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">AI Sentiment Analysis Summary</h3>
+                    <button id="generate-summary" class="px-3 py-1 bg-blue-50 text-blue-600 rounded-md text-sm hover:bg-blue-100 transition flex items-center">
+                        <i class="fas fa-magic mr-2"></i> Generate New
+                    </button>
+                </div>
+                <div id="summary-content" class="bg-gray-50 p-4 rounded-lg">
+                    <div class="flex items-start">
+                        <div class="mr-3 mt-1 text-blue-500">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div>
+                            <p class="text-gray-700">
+                                Based on the analysis of 1,243 customer interactions over the past week, sentiment trends are 
+                                <span class="font-semibold text-green-600">72% positive</span>, showing improvement from last week's 68%. 
+                                The most common positive feedback mentions "easy to use" and "helpful support". 
+                                Negative sentiment (18%) primarily relates to "slow response times" during peak hours. 
+                                Key recommendation: Consider adding additional support staff between 2-5pm to address the peak time complaints.
+                            </p>
+                            <div class="mt-3 text-sm text-gray-500">
+                                <span class="font-medium">Last updated:</span> Today, 10:42 AM
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="summary-loading" class="hidden bg-gray-50 p-4 rounded-lg pulse-animation">
+                    <div class="flex items-center">
+                        <div class="mr-3 text-blue-500">
+                            <i class="fas fa-circle-notch fa-spin"></i>
+                        </div>
+                        <div>
+                            <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                            <div class="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                            <div class="h-4 bg-gray-200 rounded w-5/6"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes and Chat Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- User Notes -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">My Notes</h3>
+                    <div class="flex space-x-2">
+                        <button id="save-notes" class="px-3 py-1 bg-green-50 text-green-600 rounded-md text-sm hover:bg-green-100 transition flex items-center">
+                            <i class="fas fa-save mr-2"></i> Save
+                        </button>
+                        <button class="px-3 py-1 bg-gray-50 text-gray-600 rounded-md text-sm hover:bg-gray-100 transition flex items-center">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                </div>
+                <textarea id="notes-area" class="notes-area w-full p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Write your notes here...">- Follow up with support team about peak hour coverage
+- Check response time metrics for last Thursday
+- Prepare positive feedback examples for next team meeting
+- Research competitors' response time SLAs</textarea>
+                <div id="notes-saved" class="hidden mt-2 text-sm text-green-600 flex items-center">
+                    <i class="fas fa-check-circle mr-1"></i> Notes saved successfully
+                </div>
+            </div>
+
+            <!-- AI Chatbot -->
+            <div id="chatbot-container" class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div class="bg-blue-600 text-white px-6 py-4 flex items-center justify-between cursor-pointer" id="chatbot-header">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center mr-3">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">Sentiment Analysis Assistant</h3>
+                            <p class="text-xs text-blue-100">Powered by Google Cloud AI</p>
+                        </div>
+                    </div>
+                    <button id="toggle-chatbot">
+                        <i class="fas fa-chevron-down text-white"></i>
+                    </button>
+                </div>
+                
+                <div id="chatbot-content">
+                    <div class="chat-messages p-4" id="chat-messages">
+                        <div class="flex mb-4">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="bg-blue-50 rounded-lg p-3 max-w-xs">
+                                <p class="text-gray-800">Hello! I'm your Sentiment Analysis Assistant. How can I help you with your customer sentiment data today?</p>
+                            </div>
+                        </div>
+                        <div class="flex mb-4 justify-end">
+                            <div class="bg-blue-600 rounded-lg p-3 max-w-xs">
+                                <p class="text-white">What were the main negative points last week?</p>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center ml-3">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+                        <div class="flex mb-4">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="bg-blue-50 rounded-lg p-3 max-w-xs">
+                                <p class="text-gray-800">The top 3 negative points from last week were: 1) Slow response times (42% of negative feedback), 2) Difficulty finding documentation (28%), and 3) Confusing pricing structure (19%).</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t border-gray-200 p-4">
+                        <div class="flex">
+                            <input type="text" id="chat-input" class="flex-1 border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Ask about your sentiment data...">
+                            <button id="send-message" class="bg-blue-600 text-white px-4 py-2 rounded-r-lg hover:bg-blue-700 transition">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Toggle chatbot visibility
+        const toggleChatbot = document.getElementById('toggle-chatbot');
+        const chatbotContainer = document.getElementById('chatbot-container');
+        const chatbotContent = document.getElementById('chatbot-content');
+        
+        let isChatbotMinimized = false;
+        
+        toggleChatbot.addEventListener('click', () => {
+            isChatbotMinimized = !isChatbotMinimized;
+            
+            if (isChatbotMinimized) {
+                chatbotContent.classList.add('hidden');
+                toggleChatbot.innerHTML = '<i class="fas fa-chevron-up text-white"></i>';
+            } else {
+                chatbotContent.classList.remove('hidden');
+                toggleChatbot.innerHTML = '<i class="fas fa-chevron-down text-white"></i>';
+            }
+        });
+
+        // Simulate generating new summary
+        const generateSummaryBtn = document.getElementById('generate-summary');
+        const summaryContent = document.getElementById('summary-content');
+        const summaryLoading = document.getElementById('summary-loading');
+        
+        generateSummaryBtn.addEventListener('click', () => {
+            summaryContent.classList.add('hidden');
+            summaryLoading.classList.remove('hidden');
+            
+            setTimeout(() => {
+                summaryLoading.classList.add('hidden');
+                
+                // Update with new random sentiment
+                const sentiments = [
+                    { type: 'Mostly Positive', class: 'sentiment-positive', icon: 'fa-smile', positive: 72, negative: 18, neutral: 10 },
+                    { type: 'Very Positive', class: 'sentiment-positive', icon: 'fa-grin-hearts', positive: 85, negative: 8, neutral: 7 },
+                    { type: 'Neutral', class: 'sentiment-neutral', icon: 'fa-meh', positive: 45, negative: 20, neutral: 35 },
+                    { type: 'Mostly Negative', class: 'sentiment-negative', icon: 'fa-frown', positive: 30, negative: 55, neutral: 15 },
+                    { type: 'Very Negative', class: 'sentiment-negative', icon: 'fa-angry', positive: 15, negative: 75, neutral: 10 }
+                ];
+                
+                const randomSentiment = sentiments[Math.floor(Math.random() * sentiments.length)];
+                
+                // Update sentiment box
+                const sentimentBox = document.querySelector('.lg\\:col-span-1.bg-white');
+                sentimentBox.className = `lg:col-span-1 bg-white rounded-xl shadow-sm p-6 ${randomSentiment.class}`;
+                
+                document.getElementById('sentiment-value').textContent = randomSentiment.type;
+                document.querySelector('.fa-smile, .fa-grin-hearts, .fa-meh, .fa-frown, .fa-angry').className = `fas ${randomSentiment.icon} text-white text-3xl`;
+                
+                // Update percentages
+                document.querySelectorAll('.flex.items-center.justify-between.text-white.text-sm span')[1].textContent = `${randomSentiment.positive}%`;
+                document.querySelectorAll('.flex.items-center.justify-between.text-white.text-sm span')[3].textContent = `${randomSentiment.negative}%`;
+                document.querySelectorAll('.flex.items-center.justify-between.text-white.text-sm span')[5].textContent = `${randomSentiment.neutral}%`;
+                
+                document.querySelectorAll('.bg-white.h-2.rounded-full')[0].style.width = `${randomSentiment.positive}%`;
+                document.querySelectorAll('.bg-white.h-2.rounded-full')[1].style.width = `${randomSentiment.negative}%`;
+                document.querySelectorAll('.bg-white.h-2.rounded-full')[2].style.width = `${randomSentiment.neutral}%`;
+                
+                // Update summary content
+                const summaries = [
+                    `Based on the analysis of ${Math.floor(Math.random() * 2000) + 500} customer interactions over the past week, sentiment trends are <span class="font-semibold text-green-600">${randomSentiment.positive}% positive</span>, showing ${randomSentiment.positive > 50 ? 'improvement' : 'decline'} from last week's ${randomSentiment.positive > 50 ? randomSentiment.positive - 5 : randomSentiment.positive + 5}%. The most common ${randomSentiment.positive > 50 ? 'positive' : 'negative'} feedback mentions "${randomSentiment.positive > 50 ? 'excellent service quality' : 'delayed resolution times'}". Key recommendation: ${randomSentiment.positive > 50 ? 'Continue focusing on the aspects customers appreciate most.' : 'Address the top pain points in the next product update.'}`,
+                    
+                    `Our latest sentiment analysis of ${Math.floor(Math.random() * 1500) + 800} customer touchpoints reveals a <span class="font-semibold ${randomSentiment.positive > 50 ? 'text-green-600' : 'text-red-600'}">${randomSentiment.type.toLowerCase()}</span> trend with ${randomSentiment.positive}% positive, ${randomSentiment.negative}% negative, and ${randomSentiment.neutral}% neutral responses. The primary driver of ${randomSentiment.positive > randomSentiment.negative ? 'positive' : 'negative'} sentiment is "${randomSentiment.positive > randomSentiment.negative ? 'intuitive user interface' : 'lack of advanced features'}". Action item: ${randomSentiment.positive > randomSentiment.negative ? 'Highlight the praised features in marketing materials.' : 'Prioritize the most requested features in the roadmap.'}`,
+                    
+                    `Customer sentiment analysis shows ${randomSentiment.type.toLowerCase()} patterns this week with <span class="font-semibold ${randomSentiment.positive > 50 ? 'text-green-600' : 'text-red-600'}">${randomSentiment.positive}% positive</span> feedback. Notable findings include ${randomSentiment.positive > 50 ? 'a 22% increase in satisfaction with support interactions' : 'a 15% increase in complaints about billing issues'}. The data suggests ${randomSentiment.positive > 50 ? 'maintaining current support staffing levels' : 'reviewing the billing communication process'} would be beneficial.`
+                ];
+                
+                const newSummary = summaries[Math.floor(Math.random() * summaries.length)];
+                
+                summaryContent.innerHTML = `
+                    <div class="flex items-start">
+                        <div class="mr-3 mt-1 text-blue-500">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div>
+                            <p class="text-gray-700">
+                                ${newSummary}
+                            </p>
+                            <div class="mt-3 text-sm text-gray-500">
+                                <span class="font-medium">Last updated:</span> Today, ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                summaryContent.classList.remove('hidden');
+            }, 2000);
+        });
+
+        // Save notes functionality
+        const saveNotesBtn = document.getElementById('save-notes');
+        const notesSaved = document.getElementById('notes-saved');
+        
+        saveNotesBtn.addEventListener('click', () => {
+            notesSaved.classList.remove('hidden');
+            setTimeout(() => {
+                notesSaved.classList.add('hidden');
+            }, 3000);
+        });
+
+        // Simple chatbot functionality
+        const chatInput = document.getElementById('chat-input');
+        const sendMessageBtn = document.getElementById('send-message');
+        const chatMessages = document.getElementById('chat-messages');
+        
+        function addMessage(message, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex mb-4 ${isUser ? 'justify-end' : ''}`;
+            
+            messageDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-full ${isUser ? 'bg-blue-100 text-blue-600 ml-3' : 'bg-blue-100 text-blue-600 mr-3'} flex items-center justify-center">
+                    <i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i>
+                </div>
+                <div class="${isUser ? 'bg-blue-600 text-white' : 'bg-blue-50 text-gray-800'} rounded-lg p-3 max-w-xs">
+                    <p>${message}</p>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        sendMessageBtn.addEventListener('click', () => {
+            const message = chatInput.value.trim();
+            if (message) {
+                addMessage(message, true);
+                chatInput.value = '';
+                
+                // Simulate bot response
+                setTimeout(() => {
+                    const responses = [
+                        "I've analyzed the sentiment data and found that most customers are happy with the recent updates.",
+                        "Looking at the trends, negative feedback has decreased by 12% compared to last month.",
+                        "The main pain points mentioned in negative reviews are related to account management features.",
+                        "Would you like me to generate a detailed report on specific aspects of the sentiment data?",
+                        "Based on the data, I recommend focusing on improving the onboarding experience next quarter."
+                    ];
+                    
+                    addMessage(responses[Math.floor(Math.random() * responses.length)]);
+                }, 1000);
+            }
+        });
+        
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessageBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
