@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Cloud - Sentiment Data Dashboard</title>
+    <title>Sentiment Data Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@400&display=swap" rel="stylesheet">
     <style>
         .sentiment-positive {
-            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            background: #34A853;
         }
         .sentiment-neutral {
             background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
@@ -42,6 +43,9 @@
             50% { opacity: 0.5; }
             100% { opacity: 1; }
         }
+        .product-sans {
+            font-family: 'Product Sans', sans-serif;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -49,8 +53,8 @@
     <header class="bg-white shadow-sm">
         <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
             <div class="flex items-center">
-                <img src="https://1000logos.net/wp-content/uploads/2020/05/Logo-Google-Cloud.png" alt="Google Cloud Logo" class="h-10 mr-3">
-                <h1 class="text-xl font-bold text-gray-800">Google Cloud Sentiment Data Dashboard</h1>
+                <img src="https://1000logos.net/wp-content/uploads/2020/05/Logo-Google-Cloud.png" alt="Logo" class="h-32 mr-3">
+                <h1 class="text-xl font-bold text-[#5F6368] product-sans">Sentiment Data Dashboard</h1>
             </div>
             <div class="flex items-center space-x-4">
                 <button class="px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition">
@@ -71,37 +75,12 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             <!-- Sentiment Indicator -->
             <div class="lg:col-span-1 bg-white rounded-xl shadow-sm p-6 sentiment-positive">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-white opacity-80">Overall Sentiment</p>
-                        <h2 id="sentiment-value" class="text-3xl font-bold text-white mt-1">Mostly Positive</h2>
+                <div class="flex flex-col items-center justify-center h-full">
+                    <div class="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-smile text-white text-5xl"></i>
                     </div>
-                    <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                        <i class="fas fa-smile text-white text-3xl"></i>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <div class="flex items-center justify-between text-white text-sm">
-                        <span>Positive</span>
-                        <span>72%</span>
-                    </div>
-                    <div class="w-full bg-white bg-opacity-30 rounded-full h-2 mt-1">
-                        <div class="bg-white h-2 rounded-full" style="width: 72%"></div>
-                    </div>
-                    <div class="flex items-center justify-between text-white text-sm mt-3">
-                        <span>Negative</span>
-                        <span>18%</span>
-                    </div>
-                    <div class="w-full bg-white bg-opacity-30 rounded-full h-2 mt-1">
-                        <div class="bg-white h-2 rounded-full" style="width: 18%"></div>
-                    </div>
-                    <div class="flex items-center justify-between text-white text-sm mt-3">
-                        <span>Neutral</span>
-                        <span>10%</span>
-                    </div>
-                    <div class="w-full bg-white bg-opacity-30 rounded-full h-2 mt-1">
-                        <div class="bg-white h-2 rounded-full" style="width: 10%"></div>
-                    </div>
+                    <p class="text-sm font-medium text-white opacity-80">Overall Sentiment</p>
+                    <h2 id="sentiment-value" class="text-3xl font-bold text-white mt-1">Mostly Positive</h2>
                 </div>
             </div>
 
@@ -263,11 +242,11 @@
                 
                 // Update with new random sentiment
                 const sentiments = [
-                    { type: 'Mostly Positive', class: 'sentiment-positive', icon: 'fa-smile', positive: 72, negative: 18, neutral: 10 },
-                    { type: 'Very Positive', class: 'sentiment-positive', icon: 'fa-grin-hearts', positive: 85, negative: 8, neutral: 7 },
-                    { type: 'Neutral', class: 'sentiment-neutral', icon: 'fa-meh', positive: 45, negative: 20, neutral: 35 },
-                    { type: 'Mostly Negative', class: 'sentiment-negative', icon: 'fa-frown', positive: 30, negative: 55, neutral: 15 },
-                    { type: 'Very Negative', class: 'sentiment-negative', icon: 'fa-angry', positive: 15, negative: 75, neutral: 10 }
+                    { type: 'Mostly Positive', class: 'sentiment-positive', icon: 'fa-smile' },
+                    { type: 'Very Positive', class: 'sentiment-positive', icon: 'fa-grin-hearts' },
+                    { type: 'Neutral', class: 'sentiment-neutral', icon: 'fa-meh' },
+                    { type: 'Mostly Negative', class: 'sentiment-negative', icon: 'fa-frown' },
+                    { type: 'Very Negative', class: 'sentiment-negative', icon: 'fa-angry' }
                 ];
                 
                 const randomSentiment = sentiments[Math.floor(Math.random() * sentiments.length)];
@@ -277,24 +256,15 @@
                 sentimentBox.className = `lg:col-span-1 bg-white rounded-xl shadow-sm p-6 ${randomSentiment.class}`;
                 
                 document.getElementById('sentiment-value').textContent = randomSentiment.type;
-                document.querySelector('.fa-smile, .fa-grin-hearts, .fa-meh, .fa-frown, .fa-angry').className = `fas ${randomSentiment.icon} text-white text-3xl`;
-                
-                // Update percentages
-                document.querySelectorAll('.flex.items-center.justify-between.text-white.text-sm span')[1].textContent = `${randomSentiment.positive}%`;
-                document.querySelectorAll('.flex.items-center.justify-between.text-white.text-sm span')[3].textContent = `${randomSentiment.negative}%`;
-                document.querySelectorAll('.flex.items-center.justify-between.text-white.text-sm span')[5].textContent = `${randomSentiment.neutral}%`;
-                
-                document.querySelectorAll('.bg-white.h-2.rounded-full')[0].style.width = `${randomSentiment.positive}%`;
-                document.querySelectorAll('.bg-white.h-2.rounded-full')[1].style.width = `${randomSentiment.negative}%`;
-                document.querySelectorAll('.bg-white.h-2.rounded-full')[2].style.width = `${randomSentiment.neutral}%`;
+                document.querySelector('.fa-smile, .fa-grin-hearts, .fa-meh, .fa-frown, .fa-angry').className = `fas ${randomSentiment.icon} text-white text-5xl`;
                 
                 // Update summary content
                 const summaries = [
-                    `Based on the analysis of ${Math.floor(Math.random() * 2000) + 500} customer interactions over the past week, sentiment trends are <span class="font-semibold text-green-600">${randomSentiment.positive}% positive</span>, showing ${randomSentiment.positive > 50 ? 'improvement' : 'decline'} from last week's ${randomSentiment.positive > 50 ? randomSentiment.positive - 5 : randomSentiment.positive + 5}%. The most common ${randomSentiment.positive > 50 ? 'positive' : 'negative'} feedback mentions "${randomSentiment.positive > 50 ? 'excellent service quality' : 'delayed resolution times'}". Key recommendation: ${randomSentiment.positive > 50 ? 'Continue focusing on the aspects customers appreciate most.' : 'Address the top pain points in the next product update.'}`,
+                    `Based on the analysis of ${Math.floor(Math.random() * 2000) + 500} customer interactions over the past week, sentiment trends are <span class="font-semibold text-green-600">${randomSentiment.type.toLowerCase()}</span>. The most common ${randomSentiment.class.includes('positive') ? 'positive' : 'negative'} feedback mentions "${randomSentiment.class.includes('positive') ? 'excellent service quality' : 'delayed resolution times'}". Key recommendation: ${randomSentiment.class.includes('positive') ? 'Continue focusing on the aspects customers appreciate most.' : 'Address the top pain points in the next product update.'}`,
                     
-                    `Our latest sentiment analysis of ${Math.floor(Math.random() * 1500) + 800} customer touchpoints reveals a <span class="font-semibold ${randomSentiment.positive > 50 ? 'text-green-600' : 'text-red-600'}">${randomSentiment.type.toLowerCase()}</span> trend with ${randomSentiment.positive}% positive, ${randomSentiment.negative}% negative, and ${randomSentiment.neutral}% neutral responses. The primary driver of ${randomSentiment.positive > randomSentiment.negative ? 'positive' : 'negative'} sentiment is "${randomSentiment.positive > randomSentiment.negative ? 'intuitive user interface' : 'lack of advanced features'}". Action item: ${randomSentiment.positive > randomSentiment.negative ? 'Highlight the praised features in marketing materials.' : 'Prioritize the most requested features in the roadmap.'}`,
+                    `Our latest sentiment analysis of ${Math.floor(Math.random() * 1500) + 800} customer touchpoints reveals a <span class="font-semibold ${randomSentiment.class.includes('positive') ? 'text-green-600' : 'text-red-600'}">${randomSentiment.type.toLowerCase()}</span> trend. The primary driver of ${randomSentiment.class.includes('positive') ? 'positive' : 'negative'} sentiment is "${randomSentiment.class.includes('positive') ? 'intuitive user interface' : 'lack of advanced features'}". Action item: ${randomSentiment.class.includes('positive') ? 'Highlight the praised features in marketing materials.' : 'Prioritize the most requested features in the roadmap.'}`,
                     
-                    `Customer sentiment analysis shows ${randomSentiment.type.toLowerCase()} patterns this week with <span class="font-semibold ${randomSentiment.positive > 50 ? 'text-green-600' : 'text-red-600'}">${randomSentiment.positive}% positive</span> feedback. Notable findings include ${randomSentiment.positive > 50 ? 'a 22% increase in satisfaction with support interactions' : 'a 15% increase in complaints about billing issues'}. The data suggests ${randomSentiment.positive > 50 ? 'maintaining current support staffing levels' : 'reviewing the billing communication process'} would be beneficial.`
+                    `Customer sentiment analysis shows ${randomSentiment.type.toLowerCase()} patterns this week. Notable findings include ${randomSentiment.class.includes('positive') ? 'a 22% increase in satisfaction with support interactions' : 'a 15% increase in complaints about billing issues'}. The data suggests ${randomSentiment.class.includes('positive') ? 'maintaining current support staffing levels' : 'reviewing the billing communication process'} would be beneficial.`
                 ];
                 
                 const newSummary = summaries[Math.floor(Math.random() * summaries.length)];
