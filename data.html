@@ -1,1 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Cloud Sentiment Data Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #4285F4 0%, #34A853 50%, #EA4335 100%);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .trust-chart-container {
+            position: relative;
+            height: 250px;
+        }
+        .glow-hover:hover {
+            box-shadow: 0 0 15px rgba(66, 133, 244, 0.5);
+        }
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        .tab-button.active {
+            background-color: #6366f1;
+            color: white;
+        }
+        .company-sentiment-chart {
+            position: relative;
+            height: 200px;
+        }
+        .custom-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23333' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 16px 12px;
+        }
+    </style>
+</head>
 
+<body class="bg-gray-50">
+    <!-- Header -->
+<header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="flex items-end">
+                <img src="https://1000logos.net/wp-content/uploads/2020/05/Logo-Google-Cloud.png" alt="Logo" class="h-32 mr-3">
+                <h1 class="text-2xl font-normal dashboard-title mb-12">Sentiment Data Dashboard</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition">
+                    <i class="fas fa-sync-alt mr-2"></i> Refresh
+                </button>
+                <div class="relative">
+                    <button class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-user text-gray-600"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Column Container -->
+            <div class="space-y-8">
+                <!-- Overall Sentiment Percentage Box -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden glow-hover transition duration-300">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-chart-line text-blue-500 mr-2"></i>
+                            Overall Sentiment Percentage
+                        </h2>
+                        
+                        <div class="flex flex-col md:flex-row">
+                            <!-- Legend -->
+                            <div class="w-full md:w-1/4 mb-6 md:mb-0">
+                                <div class="space-y-4">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-green-500 rounded mr-2"></div>
+                                        <span class="text-gray-700">Positive</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-blue-500 rounded mr-2"></div>
+                                        <span class="text-gray-700">Neutral</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-red-500 rounded mr-2"></div>
+                                        <span class="text-gray-700">Negative</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-8">
+                                    <div class="text-3xl font-bold text-gray-800">72%</div>
+                                    <div class="text-green-500 flex items-center">
+                                        <i class="fas fa-arrow-up mr-1"></i>
+                                        <span>8% from last week</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Chart -->
+                            <div class="w-full md:w-3/4">
+                                <div class="chart-container">
+                                    <canvas id="sentimentChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Trust Levels Box -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden glow-hover transition duration-300">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-shield-alt text-purple-500 mr-2"></i>
+                            Trust Levels
+                        </h2>
+                        
+                        <!-- Time Period Toggle -->
+                        <div class="flex mb-6 bg-gray-100 rounded-lg p-1 w-max">
+                            <button id="weeklyBtn" class="tab-button px-4 py-2 rounded-lg font-medium active">
+                                Weekly
+                            </button>
+                            <button id="monthlyBtn" class="tab-button px-4 py-2 rounded-lg font-medium">
+                                Monthly
+                            </button>
+                        </div>
+                        
+                        <div class="flex flex-col md:flex-row">
+                            <!-- Legend -->
+                            <div class="w-full md:w-1/4 mb-6 md:mb-0">
+                                <div class="space-y-4">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-purple-500 rounded mr-2"></div>
+                                        <span class="text-gray-700">High Trust</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-yellow-500 rounded mr-2"></div>
+                                        <span class="text-gray-700">Medium Trust</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-orange-500 rounded mr-2"></div>
+                                        <span class="text-gray-700">Low Trust</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-8">
+                                    <div class="text-3xl font-bold text-gray-800">84%</div>
+                                    <div class="text-green-500 flex items-center">
+                                        <i class="fas fa-arrow-up mr-1"></i>
+                                        <span>5% from last week</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Chart -->
+                            <div class="w-full md:w-3/4">
+                                <div class="trust-chart-container">
+                                    <canvas id="trustChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column Container -->
+            <div class="space-y-8">
+                <!-- Common Successes Box -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden glow-hover transition duration-300">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-6">
+                            Common Successes
+                        </h2>
+                        
+                        <div class="space-y-4 text-gray-700">
+                            <p>Users report 40% faster API response times after the latest update, with many praising the improved performance.</p>
+                            <p>New tutorials and enhanced documentation have reduced support tickets by 25% and improved user onboarding.</p>
+                            <p>The real-time analytics dashboard has been particularly well-received, with 89% of users reporting satisfaction.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Common Challenges Box -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden glow-hover transition duration-300">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-6">
+                            Common Challenges
+                        </h2>
+                        
+                        <div class="space-y-4 text-gray-700">
+                            <p>New users report the initial setup process is too complex, with 35% mentioning onboarding difficulties.</p>
+                            <p>Intermittent 503 errors during peak hours affect 28% of users, causing frustration with service reliability.</p>
+                            <p>42% of users are unaware of advanced features, indicating poor feature discoverability in the UI.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sentiment by Company Box -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden glow-hover transition duration-300">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-building text-indigo-500 mr-2"></i>
+                            Sentiment by Company
+                        </h2>
+                        
+                        <div class="flex justify-between items-center mb-6">
+                            <!-- Company Selector -->
+                            <div class="w-1/2">
+                                <label for="companySelect" class="block text-sm font-medium text-gray-700 mb-2">Select Company</label>
+                                <div class="relative">
+                                    <select id="companySelect" class="custom-select block w-full px-4 py-2 pr-8 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="all">All Companies (Aggregate)</option>
+                                        <option value="google">Google</option>
+                                        <option value="amazon">Amazon</option>
+                                        <option value="microsoft">Microsoft</option>
+                                        <option value="apple">Apple</option>
+                                        <option value="facebook">Meta</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Time Period Toggle -->
+                            <div class="w-1/2 flex justify-end">
+                                <div class="bg-gray-100 rounded-lg p-1 w-max">
+                                    <button id="companyWeeklyBtn" class="tab-button px-4 py-2 rounded-lg font-medium active">
+                                        Weekly
+                                    </button>
+                                    <button id="companyMonthlyBtn" class="tab-button px-4 py-2 rounded-lg font-medium">
+                                        Monthly
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sentiment Chart -->
+                        <div class="company-sentiment-chart">
+                            <canvas id="companySentimentChart"></canvas>
+                        </div>
+                        
+                        <!-- Sentiment Breakdown -->
+                        <div class="mt-6 grid grid-cols-3 gap-4 text-center">
+                            <div>
+                                <div class="text-2xl font-bold text-green-600">68%</div>
+                                <div class="text-sm text-gray-500">Positive</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-blue-600">25%</div>
+                                <div class="text-sm text-gray-500">Neutral</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-red-600">7%</div>
+                                <div class="text-sm text-gray-500">Negative</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Sentiment Chart
+        const ctx = document.getElementById('sentimentChart').getContext('2d');
+        const sentimentChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                datasets: [
+                    {
+                        label: 'Positive',
+                        data: [65, 59, 70, 71, 66, 70, 72],
+                        borderColor: '#34A853',
+                        backgroundColor: 'rgba(52, 168, 83, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: 'Neutral',
+                        data: [28, 33, 25, 24, 28, 25, 23],
+                        borderColor: '#4285F4',
+                        backgroundColor: 'rgba(66, 133, 244, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: 'Negative',
+                        data: [7, 8, 5, 5, 6, 5, 5],
+                        borderColor: '#EA4335',
+                        backgroundColor: 'rgba(234, 67, 53, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+
+        // Trust Levels Chart - Weekly Data
+        const weeklyLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Current'];
+        const weeklyHighTrust = [78, 80, 82, 83, 84];
+        const weeklyMediumTrust = [15, 14, 13, 12, 11];
+        const weeklyLowTrust = [7, 6, 5, 5, 5];
+
+        // Trust Levels Chart - Monthly Data
+        const monthlyLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May'];
+        const monthlyHighTrust = [75, 77, 79, 82, 84];
+        const monthlyMediumTrust = [18, 17, 16, 14, 11];
+        const monthlyLowTrust = [7, 6, 5, 4, 5];
+
+        // Initialize with weekly data
+        const trustCtx = document.getElementById('trustChart').getContext('2d');
+        let trustChart = new Chart(trustCtx, {
+            type: 'bar',
+            data: {
+                labels: weeklyLabels,
+                datasets: [
+                    {
+                        label: 'High Trust',
+                        data: weeklyHighTrust,
+                        backgroundColor: 'rgba(168, 85, 247, 0.7)',
+                        borderColor: 'rgba(168, 85, 247, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Medium Trust',
+                        data: weeklyMediumTrust,
+                        backgroundColor: 'rgba(234, 179, 8, 0.7)',
+                        borderColor: 'rgba(234, 179, 8, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Low Trust',
+                        data: weeklyLowTrust,
+                        backgroundColor: 'rgba(249, 115, 22, 0.7)',
+                        borderColor: 'rgba(249, 115, 22, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+
+        // Company Sentiment Data - Monthly
+        const companyMonthlyData = {
+            all: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                positive: [65, 68, 70, 72, 71, 73, 72],
+                neutral: [28, 25, 24, 23, 24, 22, 23],
+                negative: [7, 7, 6, 5, 5, 5, 5]
+            },
+            google: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                positive: [70, 72, 74, 75, 73, 76, 75],
+                neutral: [25, 23, 22, 21, 23, 20, 21],
+                negative: [5, 5, 4, 4, 4, 4, 4]
+            },
+            amazon: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                positive: [62, 65, 67, 68, 67, 69, 68],
+                neutral: [30, 28, 27, 26, 27, 25, 26],
+                negative: [8, 7, 6, 6, 6, 6, 6]
+            },
+            microsoft: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                positive: [68, 70, 72, 73, 72, 74, 73],
+                neutral: [26, 24, 23, 22, 23, 21, 22],
+                negative: [6, 6, 5, 5, 5, 5, 5]
+            },
+            apple: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                positive: [60, 63, 65, 67, 66, 68, 67],
+                neutral: [32, 30, 29, 27, 28, 26, 27],
+                negative: [8, 7, 6, 6, 6, 6, 6]
+            },
+            facebook: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                positive: [58, 60, 63, 65, 64, 66, 65],
+                neutral: [33, 32, 30, 28, 29, 27, 28],
+                negative: [9, 8, 7, 7, 7, 7, 7]
+            }
+        };
+
+        // Company Sentiment Data - Weekly
+        const companyWeeklyData = {
+            all: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Current'],
+                positive: [68, 69, 70, 71, 72],
+                neutral: [25, 24, 23, 23, 23],
+                negative: [7, 7, 7, 6, 5]
+            },
+            google: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Current'],
+                positive: [72, 73, 74, 74, 75],
+                neutral: [23, 22, 21, 21, 21],
+                negative: [5, 5, 5, 5, 4]
+            },
+            amazon: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Current'],
+                positive: [65, 66, 67, 67, 68],
+                neutral: [28, 27, 26, 26, 26],
+                negative: [7, 7, 7, 7, 6]
+            },
+            microsoft: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Current'],
+                positive: [70, 71, 72, 72, 73],
+                neutral: [24, 23, 22, 22, 22],
+                negative: [6, 6, 6, 6, 5]
+            },
+            apple: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Current'],
+                positive: [63, 64, 65, 66, 67],
+                neutral: [30, 29, 28, 27, 27],
+                negative: [7, 7, 7, 7, 6]
+            },
+            facebook: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Current'],
+                positive: [60, 61, 63, 64, 65],
+                neutral: [32, 31, 30, 29, 28],
+                negative: [8, 8, 7, 7, 7]
+            }
+        };
+
+        // Initialize Company Sentiment Chart with weekly data
+        const companySentimentCtx = document.getElementById('companySentimentChart').getContext('2d');
+        const companySentimentChart = new Chart(companySentimentCtx, {
+            type: 'line',
+            data: {
+                labels: companyWeeklyData.all.labels,
+                datasets: [
+                    {
+                        label: 'Positive',
+                        data: companyWeeklyData.all.positive,
+                        borderColor: '#34A853',
+                        backgroundColor: 'rgba(52, 168, 83, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: 'Neutral',
+                        data: companyWeeklyData.all.neutral,
+                        borderColor: '#4285F4',
+                        backgroundColor: 'rgba(66, 133, 244, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: 'Negative',
+                        data: companyWeeklyData.all.negative,
+                        borderColor: '#EA4335',
+                        backgroundColor: 'rgba(234, 67, 53, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+
+        // Update company sentiment data based on selected company and time period
+        function updateCompanySentimentData(company, isWeekly) {
+            const data = isWeekly ? companyWeeklyData : companyMonthlyData;
+            const currentData = data[company];
+            
+            // Update chart data
+            companySentimentChart.data.labels = currentData.labels;
+            companySentimentChart.data.datasets[0].data = currentData.positive;
+            companySentimentChart.data.datasets[1].data = currentData.neutral;
+            companySentimentChart.data.datasets[2].data = currentData.negative;
+            companySentimentChart.update();
+            
+            // Update sentiment breakdown numbers
+            const lastIndex = currentData.positive.length - 1;
+            document.querySelector('.company-sentiment-chart').nextElementSibling.children[0].children[0].textContent = 
+                currentData.positive[lastIndex] + '%';
+            document.querySelector('.company-sentiment-chart').nextElementSibling.children[1].children[0].textContent = 
+                currentData.neutral[lastIndex] + '%';
+            document.querySelector('.company-sentiment-chart').nextElementSibling.children[2].children[0].textContent = 
+                currentData.negative[lastIndex] + '%';
+        }
+
+        // Company Selector Functionality
+        document.getElementById('companySelect').addEventListener('change', function() {
+            const selectedCompany = this.value;
+            const isWeekly = document.getElementById('companyWeeklyBtn').classList.contains('active');
+            updateCompanySentimentData(selectedCompany, isWeekly);
+        });
+
+        // Company Time Period Toggle
+        document.getElementById('companyWeeklyBtn').addEventListener('click', function() {
+            this.classList.add('active');
+            document.getElementById('companyMonthlyBtn').classList.remove('active');
+            
+            const selectedCompany = document.getElementById('companySelect').value;
+            updateCompanySentimentData(selectedCompany, true);
+        });
+
+        document.getElementById('companyMonthlyBtn').addEventListener('click', function() {
+            this.classList.add('active');
+            document.getElementById('companyWeeklyBtn').classList.remove('active');
+            
+            const selectedCompany = document.getElementById('companySelect').value;
+            updateCompanySentimentData(selectedCompany, false);
+        });
+
+        // Tab switching functionality for Trust Levels
+        document.getElementById('weeklyBtn').addEventListener('click', function() {
+            this.classList.add('active');
+            document.getElementById('monthlyBtn').classList.remove('active');
+            
+            // Update chart with weekly data
+            trustChart.data.labels = weeklyLabels;
+            trustChart.data.datasets[0].data = weeklyHighTrust;
+            trustChart.data.datasets[1].data = weeklyMediumTrust;
+            trustChart.data.datasets[2].data = weeklyLowTrust;
+            trustChart.update();
+            
+            // Update the "from last" text
+            document.querySelector('.trust-chart-container').parentElement.querySelector('.text-green-500 span').textContent = '5% from last week';
+        });
+
+        document.getElementById('monthlyBtn').addEventListener('click', function() {
+            this.classList.add('active');
+            document.getElementById('weeklyBtn').classList.remove('active');
+            
+            // Update chart with monthly data
+            trustChart.data.labels = monthlyLabels;
+            trustChart.data.datasets[0].data = monthlyHighTrust;
+            trustChart.data.datasets[1].data = monthlyMediumTrust;
+            trustChart.data.datasets[2].data = monthlyLowTrust;
+            trustChart.update();
+            
+            // Update the "from last" text
+            document.querySelector('.trust-chart-container').parentElement.querySelector('.text-green-500 span').textContent = '5% from last month';
+        });
+    </script>
+</body>
+</html>
