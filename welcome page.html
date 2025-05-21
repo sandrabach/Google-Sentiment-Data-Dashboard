@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Data Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .sentiment-positive {
+            background: linear-gradient(135deg, #66bb77 0%, #34A853 100%);
+        }
+        .sentiment-neutral {
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+        }
+        .sentiment-negative {
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+        }
+        .notes-area {
+            min-height: 300px;
+            resize: none;
+        }
+        .chatbot-container {
+            transition: all 0.3s ease;
+        }
+        .chatbot-minimized {
+            height: 60px;
+            overflow: hidden;
+        }
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+        }
+        .static-gradient-text {
+            background: linear-gradient(135deg, #4285F4 0%, #34A853 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline;
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .product-sans {
+            font-family: 'Product Sans', sans-serif;
+        }
+        .dashboard-title {
+            color: #5F6368;
+            font-family: 'Product Sans', sans-serif;
+        }
+        .feature-box {
+            width: 100%;
+            height: 187.5px; /* Increased by 25% */
+            border-width: 2.5px;
+            border-style: solid;
+            background-color: transparent;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .feature-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .feature-title {
+            font-family: 'Product Sans', sans-serif;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .feature-subtext {
+            font-family: 'Product Sans', sans-serif;
+            font-weight: 400;
+            color: #5F6368;
+            font-size: 14px;
+            margin-top: 10px; /* Added to move text down */
+        }
+        .gradient-border-yellow {
+            border-image: linear-gradient(135deg, #FFF3B8 0%, #FBBC05 100%);
+            border-image-slice: 1;
+        }
+        .gradient-border-red {
+            border-image: linear-gradient(135deg, #FFD3D3 0%, #EA4335 100%);
+            border-image-slice: 1;
+        }
+        .gradient-border-green {
+            border-image: linear-gradient(135deg, #C6F7D0 0%, #34A853 100%);
+            border-image-slice: 1;
+        }
+        .footer-image {
+            margin-top: -1px;
+            transform: translateX(-10%); /* Move image 50% to the left */
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="flex items-end">
+                <img src="https://1000logos.net/wp-content/uploads/2020/05/Logo-Google-Cloud.png" alt="Logo" class="h-32 mr-3">
+                <h1 class="text-2xl font-normal dashboard-title mb-12">Sentiment Data Dashboard</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition">
+                    <i class="fas fa-sync-alt mr-2"></i> Refresh
+                </button>
+                <div class="relative">
+                    <button class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-user text-gray-600"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Welcome Message Section -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="text-center">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-normal product-sans mb-4">
+                <span class="text-[#5F6368]">Understanding Your Customers </span>
+                <span class="static-gradient-text">Better</span>
+            </h1>
+            <p class="text-md text-[#5F6368] max-w-md md:max-w-xl lg:max-w-2xl mx-auto">
+                Leverage Google Cloud's AI-powered sentiment analysis to gain actionable insights from customer feedback, reviews, and support interactions
+            </p>
+            
+            <!-- Go to Dashboard Button -->
+            <div class="mt-4">
+                <button class="bg-[#4285F4] text-white px-8 mt-6 py-3 rounded-md product-sans font-normal text-lg hover:bg-[#3367D6] transition duration-300">
+                    Go to Dashboard
+                </button>
+            </div>
+
+            <!-- Feature Boxes -->
+            <h3 class="product-sans font-normal text-[#5F6368] mt-10 text-3xl">
+                Powerful Sentiment Analysis Features
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4 max-w-4xl mx-auto">
+                <div class="feature-box gradient-border-yellow">
+                    <h3 class="feature-title text-[#FBBC05] text-xl">Real-time Analytics</h3>
+                    <img src="https://lh3.googleusercontent.com/pw/AP1GczNIuCR5Vo5WAjraUbTQKR3OTBvD5EWmD8FfG9Tc3KcCdO3f5x5g8WNinIdlUoOVRD4rEpOVsg_h9FMgxysVV2QWJ0OfGnVdDTWUTCyqXz6WvHCoabmUkjmFRgrgo_DcIs3W2DtNCS5tCZfrYfdD_B3J=w700-h700-s-no-gm" alt="Light yellow circle with darker yellow pie chart icon inside of it" style="width:15%; height: auto;"/>
+                    <p class="feature-subtext">Get up-to-the-minute sentiment analysis from multiple customer touchpoints including support tickets, reviews, and social media.</p>
+                </div>
+                <div class="feature-box gradient-border-red">
+                    <h3 class="feature-title text-[#EA4335] text-xl">AI-Powered Insights</h3>
+                                        <img src="https://lh3.googleusercontent.com/pw/AP1GczNVmCbWGRXiI_wSSYLhNV194Sj2IxUq_4WlaczqotMKztbHEVmqFQrXjftJqy8hyTS4Ic0HH07cScXlOaFIjSy3dhdNa_cPqaC4ZeNHDnNrT2WXBRRCQ29EKZFi0Xjla-BBzDWwam1oajNrmhSnZkmL=w700-h700-s-no-gm" alt="Light red circle with darker red pie star icon inside of it" style="width:15%; height: auto;"/>
+                    <p class="feature-subtext">Our advanced natural language processing identifies key themes and trends in customer feedback automatically.</p>
+                </div>
+                <div class="feature-box gradient-border-green">
+                    <h3 class="feature-title text-[#34A853] text-xl">Historical Trends</h3>
+                                        <img src="https://lh3.googleusercontent.com/pw/AP1GczN4odnP7bZ7n8TwTOurFYUmj_hWVP_gW8ZwZ0Ts0naNJvfXAY3fFZHjjGybe3E-U64p6ZL50_RZfg4qOzUV2lG0m_RjCKjyr9QdBO4HoItMSSskn6i8fepu76CgjYW660BZqofUDSgFbXCWemms885C=w700-h700-s-no-gm" alt="Light green circle with d arker green curved arrow with the minute hand and hour hand inside of arrow inside of light green circle" style="width:15%; height: auto;"/>
+                    <p class="feature-subtext">Track sentiment changes over time to measure the impact of product updates and customer service improvements.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-12 py-6 text-center text-gray-500 text-sm">
+        <div class="flex justify-center items-center space-x-2">
+            <span class="product-sans font-normal text-[#5F6368]"> Powered By</span>
+            <img src="https://lh3.googleusercontent.com/pw/AP1GczMQaA1h0jR8qBkHdhtfTHHbERg01r7mzaPSqqkJQCgx7Scj5lPXuCLRKFuIrWxeMVzdpER8k96JMujOW-A3mqHe-eNeapT8cNd9mMKxBPlXZbU58lmL-OQOy-cOjmm9a2P2W3Oh8xQ0JqXH798mjEDY=w973-h303-s-no-gm" alt="Text Logo that says Sparklers where the K is color blocked red, yellow, green and blue, with a star sitting on top of the top right k line. " class="h-6 footer-image">
+        </div>
+    </footer>
+</body>
+</html>
