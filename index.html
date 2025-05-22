@@ -140,6 +140,22 @@
             margin-top: -1px;
             transform: translateX(-10%); /* Move image 50% to the left */
         }
+        .dashboard-data-title {
+            margin-left: 24px;
+            position: relative;
+            top: -5px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        } 
+        .dashboard-data-title:hover {
+            background-color: #f1f3f4;
+        }
+        .header-nav-items {
+            display: flex;
+            align-items: center;
+            margin-left: auto; /* This pushes the container to the right */
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -150,7 +166,9 @@
                 <img src="https://1000logos.net/wp-content/uploads/2020/05/Logo-Google-Cloud.png" alt="Logo" class="h-32 mr-3">
                 <h1 class="text-2xl font-normal dashboard-title mb-12">Sentiment Data Dashboard</h1>
             </div>
-            <div class="flex items-center space-x-4">
+            <div class="header-nav-items">
+                <h3 class="text-lg font-normal dashboard-title dashboard-data-title cursor-pointer">Dashboard</h3>
+                <h3 class="text-lg font-normal dashboard-title dashboard-data-title cursor-pointer">Data</h3>
             </div>
         </div>
     </header>
